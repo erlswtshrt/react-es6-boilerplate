@@ -31,8 +31,17 @@ gulp.task('browserify', function() {
     .pipe(gulp.dest('public/js'));
 });
 
+gulp.task('browserify-vendor', function() {
+  return browserify()
+    .require(dependencies)
+    .bundle()
+    .pipe(source('vendor.bundle.js'))
+    .pipe(gulpif(production, streamify(uglify({ mangle: false }))))
+    .pipe(gulp.dest('public/js'));
+});
+
 // watch and bundle on change
-gulp.task('browserify-watch', function() {
+gulp.task('browserify-watch',  ['browserify-vendor'], function() {
   var bundler = watchify(browserify('app/main.js', watchify.args));
   bundler.external(dependencies);
   bundler.transform(babelify, { presets: ['es2015', 'react'] });
